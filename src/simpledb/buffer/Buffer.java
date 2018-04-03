@@ -21,6 +21,11 @@ public class Buffer {
    private int modifiedBy = -1;  // negative means not modified
    private int logSequenceNumber = -1; // negative means no corresponding log record
 
+
+   //================================================================================================== When the frame was last used
+   private long lastUsed = 0;
+
+
    /**
     * Creates a new buffer, wrapping a new 
     * {@link simpledb.file.Page page}.  
@@ -101,6 +106,8 @@ public class Buffer {
       if (lsn >= 0)
 	      logSequenceNumber = lsn;
       contents.setString(offset, val);
+
+      updateLastUsed();
    }
 
    /**
@@ -127,11 +134,25 @@ public class Buffer {
       }
    }
 
+   //Set time of when it was last used
+   private void updateLastUsed(){
+      lastUsed = System.currentTimeMillis();
+   }
+
+
+   //Get last time used
+   public long getLastUsedTime() {
+      return lastUsed;
+   }
+
+
    /**
     * Increases the buffer's pin count.
     */
    void pin() {
+
       pins++;
+      updateLastUsed();
    }
 
    /**
@@ -172,6 +193,7 @@ public class Buffer {
       blk = b;
       contents.read(blk);
       pins = 0;
+      updateLastUsed();
    }
 
    /**
@@ -187,6 +209,7 @@ public class Buffer {
       fmtr.format(contents);
       blk = contents.append(filename);
       pins = 0;
+      updateLastUsed();
    }
 
    int getFrameNumber() {

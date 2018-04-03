@@ -160,6 +160,21 @@ class BasicBufferMgr {
          //return the buffer at that frame
          return bufferpool[firstOpenSlot];
       }
+
+
+      //================================================================================================== Check if the selected policy is LRU
+      if(replacementPolicy.equalsIgnoreCase("LRU")) {
+         while(true){
+            int lru = 0;
+            long lruTime = bufferpool[0].getLastUsedTime();
+            for(int i = 0; i <= bufferpool.length; i++){
+               if(!bufferpool[i].isPinned() && (bufferpool[i].getLastUsedTime() < lruTime)){
+                  lruTime = bufferpool[i].getLastUsedTime();
+                  lru = i;
+               }
+            }
+         }
+      }
       //this needs to be modified -- but for now return null if there are no open frames
       return null;
    }
